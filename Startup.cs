@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Diagnostics;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using web_api_course_.net_5._0.Models;
+using web_api_course_.net_5._0.Services.CharacterService;
 
 namespace web_api_course_.net_5._0
 {
@@ -32,6 +39,7 @@ namespace web_api_course_.net_5._0
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "web_api_course_.net_5._0", Version = "v1" });
             });
+            services.AddScoped<ICharacterService, CharacterService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,10 +47,12 @@ namespace web_api_course_.net_5._0
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "web_api_course_.net_5._0 v1"));
             }
+
+            app.UseExceptionHandler("/errors");
 
             app.UseHttpsRedirection();
 
