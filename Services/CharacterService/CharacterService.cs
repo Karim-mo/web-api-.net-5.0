@@ -32,6 +32,23 @@ namespace web_api_course_.net_5._0.Services.CharacterService
             return response;
         }
 
+        public async Task<Response<GetCharacterDTO>> DeleteCharacter(int id)
+        {
+            var response = new Response<GetCharacterDTO>();
+            Character c = chars.FirstOrDefault(c => c.ID == id);
+
+            if (c != null)
+            {
+                chars.RemoveAt(id);
+                response.data = _mapper.Map<GetCharacterDTO>(c);
+                return response;
+            }
+            else
+            {
+                throw new NullReferenceException("Character not found");
+            }
+        }
+
         public async Task<Response<List<GetCharacterDTO>>> GetAll()
         {
             var response = new Response<List<GetCharacterDTO>>();

@@ -46,5 +46,11 @@ namespace web_api_course_.net_5._0.Controllers
         {
             return Ok(await _characterService.UpdateCharacter(c));
         }
+
+        [HttpDelete]
+        public async Task<ActionResult<Response<GetCharacterDTO>>> DeleteCharacter(int id)
+        {
+            return Ok(await _characterService.DeleteCharacter(id));
+        }
     }
 }
