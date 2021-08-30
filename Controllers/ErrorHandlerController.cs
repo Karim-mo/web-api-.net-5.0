@@ -6,29 +6,21 @@ using web_api_course_.net_5._0.Models;
 
 namespace web_api_course_.net_5._0.Controllers
 {
-
-    [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public class ErrorHandlerController : ControllerBase
+    public static class ErrorHandlerController
     {
-        [HttpGet]
-        [Route("/errors")]
-        public IActionResult HandleError()
+        public static string HandleError(string message, string trace)
         {
-            var cont = HttpContext.Features.Get<IExceptionHandlerFeature>();
-            HttpContext.Response.ContentType = "application/json";
-            // Can add status code in response json for frontend to deal with it since asp.net is so amazing
-            return Content(new ErrorDetails
+            return new ErrorDetails
             {
                 response = new Response
                 {
                     data = new Data
                     {
-                        message = cont.Error.Message,
-                        stack = cont.Error.StackTrace
+                        message = message,
+                        stack = trace
                     }
                 }
-            }.ToString());
+            }.ToString();
         }
     }
 
