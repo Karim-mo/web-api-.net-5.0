@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using web_api_course_.net_5._0.Data;
 using web_api_course_.net_5._0.DTOs.Character;
 using web_api_course_.net_5._0.Models;
 
@@ -10,14 +12,12 @@ namespace web_api_course_.net_5._0.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        private static List<Character> chars = new List<Character>{
-            new Character(),
-            new Character {ID = 1, Name = "T", Class = Classes.Cleric}
-        };
         private readonly IMapper _mapper;
+        private readonly DataContext context;
 
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper, DataContext context)
         {
+            this.context = context;
             this._mapper = mapper;
         }
 
@@ -25,21 +25,22 @@ namespace web_api_course_.net_5._0.Services.CharacterService
         {
             var response = new Response<List<GetCharacterDTO>>();
             Character _c = _mapper.Map<Character>(c);
-            _c.ID = chars.Count;
             _c.Health = 100;
-            chars.Add(_c);
-            response.data = chars.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToList();
+            context.Characters.Add(_c);
+            await context.SaveChangesAsync();
+            response.data = await context.Characters.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToListAsync();
             return response;
         }
 
         public async Task<Response<GetCharacterDTO>> DeleteCharacter(int id)
         {
             var response = new Response<GetCharacterDTO>();
-            Character c = chars.FirstOrDefault(c => c.ID == id);
+            Character c = await context.Characters.FirstOrDefaultAsync(c => c.ID == id);
 
             if (c != null)
             {
-                chars.RemoveAt(id);
+                context.Characters.Remove(c);
+                await context.SaveChangesAsync();
                 response.data = _mapper.Map<GetCharacterDTO>(c);
                 return response;
             }
@@ -52,36 +53,49 @@ namespace web_api_course_.net_5._0.Services.CharacterService
         public async Task<Response<List<GetCharacterDTO>>> GetAll()
         {
             var response = new Response<List<GetCharacterDTO>>();
-            response.data = chars.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToList();
+            var _chars = await context.Characters.ToListAsync();
+            response.data = _chars.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToList();
             return response;
         }
 
         public async Task<Response<GetCharacterDTO>> GetOne(int id)
         {
             var response = new Response<GetCharacterDTO>();
-            response.data = _mapper.Map<GetCharacterDTO>(chars.FirstOrDefault(c => c.ID == id));
-            return response;
+            var c = await context.Characters.FirstOrDefaultAsync(c => c.ID == id);
+            if (c != null)
+            {
+                response.data = _mapper.Map<GetCharacterDTO>(c);
+                return response;
+            }
+            else
+            {
+                throw new NullReferenceException("Character not found");
+            }
+
         }
 
         public async Task<Response<GetCharacterDTO>> UpdateCharacter(UpdateCharacterDTO c)
         {
             var response = new Response<GetCharacterDTO>();
-            try
+
+            Character _c = await context.Characters.FirstOrDefaultAsync(_char => _char.ID == c.ID);
+            if (_c != null)
             {
-                Character _c = chars.First(_char => _char.ID == c.ID);
                 _c.Name = c.Name;
                 _c.STR = c.STR;
                 _c.DEF = c.DEF;
                 _c.INT = c.INT;
 
+                await context.SaveChangesAsync();
+
                 response.data = _mapper.Map<GetCharacterDTO>(_c);
+                return response;
             }
-            catch (Exception e)
+            else
             {
                 throw new NullReferenceException("Can't update character");
-            }
 
-            return response;
+            }
         }
     }
 }
