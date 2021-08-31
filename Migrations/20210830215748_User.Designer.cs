@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using web_api_course_.net_5._0.Data;
 
 namespace web_api_course_.net_5._0.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210830215748_User")]
+    partial class User
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,12 +46,7 @@ namespace web_api_course_.net_5._0.Migrations
                     b.Property<int>("STR")
                         .HasColumnType("int");
 
-                    b.Property<int?>("userid")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
-
-                    b.HasIndex("userid");
 
                     b.ToTable("Characters");
                 });
@@ -62,38 +59,20 @@ namespace web_api_course_.net_5._0.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("password")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("passwordSalt")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("web_api_course_.net_5._0.Models.Character", b =>
-                {
-                    b.HasOne("web_api_course_.net_5._0.Models.User", "user")
-                        .WithMany("characters")
-                        .HasForeignKey("userid");
-
-                    b.Navigation("user");
-                });
-
-            modelBuilder.Entity("web_api_course_.net_5._0.Models.User", b =>
-                {
-                    b.Navigation("characters");
                 });
 #pragma warning restore 612, 618
         }
